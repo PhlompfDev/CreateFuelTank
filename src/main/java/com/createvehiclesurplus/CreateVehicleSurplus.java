@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 @Mod(CreateVehicleSurplus.ID)
 public class CreateVehicleSurplus {
@@ -27,6 +28,9 @@ public class CreateVehicleSurplus {
         VehicleSurplusBlockEntities.register();
 
         modBus.addListener(FuelTankBlockEntity::registerCapabilities);
+
+        if (FMLEnvironment.dist.isClient())
+            com.createvehiclesurplus.client.VehicleSurplusClient.init();
     }
 
     public static ResourceLocation rl(String path) {

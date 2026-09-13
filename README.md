@@ -17,6 +17,7 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
   in a Fuel Tank stays in the Fuel Tank.
 - **Redstone stop**: power any block of the tank and it stops feeding. Fluid stays inside.
 - **Goggles**: engineer's goggles show how many machines are being fed, or why not.
+- **Ponder**: every block has a Ponder scene (hover the item and hold W).
 - **Long Fuel Tank**: the same tank lying down. A 1x1 tube along X or Z that chains end to end
   up to 8 blocks, for thin airframes with the thruster at the end of the row. Craft it from a
   Fuel Tank alone in the grid (and back).

@@ -2,6 +2,9 @@
 
 ## 0.5.0 — Renamed to Create: Vehicle Surplus
 
+**Added**
+- Ponder scenes for the Fuel Tank, the Long Fuel Tank and the Differential (hover the item and hold W).
+
 **Changed**
 - The mod is now **Create: Vehicle Surplus** (mod id `createvehiclesurplus`, was `createfueltank`). Nothing else changed.
 - **Worlds from 0.4.0 and earlier**: because the mod id changed, blocks placed under the old id will not carry over. Break and re-place Fuel Tanks, Long Fuel Tanks and Differentials before updating, or keep the old jar for those worlds.
