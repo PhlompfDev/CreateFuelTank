@@ -10,10 +10,13 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
 - **Automatic feeding**: the tank pushes its fluid into any Diesel Engine (normal, modular or
   huge) adjacent to any block of the multiblock, through the engine's own fluid handler, so
   the engine's port orientation does not matter.
-- **Fuel only**: only fluids Diesel Generators recognises as a fuel are pushed. Water in a Fuel
-  Tank stays in the Fuel Tank.
+- **Create Propulsion: Simulated** (optional): the Thruster and Liquid Vector Thruster are fed
+  the same way.
+- **Fuel only**: each machine decides what it burns. Only fluids Diesel Generators recognises
+  as a fuel go into engines, and only fluids on Propulsion's fuel list go into thrusters. Water
+  in a Fuel Tank stays in the Fuel Tank.
 - **Redstone stop**: power any block of the tank and it stops feeding. Fluid stays inside.
-- **Goggles**: engineer's goggles show how many engines are being fed, or why not.
+- **Goggles**: engineer's goggles show how many machines are being fed, or why not.
 
 ## Recipe
 
@@ -27,5 +30,6 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
 | NeoForge | 21.1.219+ (built against 21.1.248) |
 | Create | 6.0.10 – 6.0.x |
 | Create Diesel Generators | 1.21.1-1.3.15+ |
+| Create Propulsion: Simulated | 1.1.5+ (optional) |
 
 Create Aeronautics / Simulated are not required; the tank works in the regular world too.

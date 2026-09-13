@@ -2,9 +2,8 @@ package com.createfueltank.content.fuel_tank;
 
 import com.createfueltank.CreateFuelTank;
 import com.createfueltank.FuelTankBlockEntities;
-import com.jesz.createdieselgenerators.CDGRegistries;
-import com.jesz.createdieselgenerators.content.diesel_engine.IEngine;
-import com.jesz.createdieselgenerators.fuel_type.FuelType;
+import com.createfueltank.compat.FuelConsumer;
+import com.createfueltank.compat.FuelConsumers;
 import com.simibubi.create.content.fluids.tank.FluidTankBlockEntity;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.ChatFormatting;
@@ -13,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -22,40 +22,46 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
- * A Fluid Tank whose controller feeds every Diesel Generators engine touching the multiblock.
+ * A Fluid Tank whose controller feeds every fuel-burning machine touching the multiblock:
+ * Diesel Generators engines and, when Create Propulsion is installed, its liquid thrusters
+ * (see {@link FuelConsumers}).
  * <p>
  * Server-side, once per tick, the controller pushes up to {@link #TRANSFER_RATE} mB of its
- * fluid into each cached adjacent engine via the engine's fluid capability (queried with a
- * {@code null} side, which every CDG engine answers with its whole internal tank regardless
- * of where its pipe port is). Only fluids CDG knows as a fuel are pushed, so water in a Fuel
- * Tank does not clog an engine.
+ * fluid into each cached adjacent machine through the handler its {@link FuelConsumer} hands
+ * back (the block's fluid capability on a {@code null} side, which every supported machine
+ * answers with its whole internal tank regardless of where its pipe port is). Each kind decides
+ * for itself whether the tank's fluid is a fuel, so water in a Fuel Tank never clogs anything.
  * <p>
- * The engine cache is rebuilt when a neighbour changes ({@link #markSurroundingsDirty()}),
+ * The machine cache is rebuilt when a neighbour changes ({@link #markSurroundingsDirty()}),
  * when the multiblock re-forms, and every {@link #RESCAN_INTERVAL} ticks as a safety net.
  * The same rescan notices whether any block of the multiblock is redstone powered; if so the
  * whole tank stops feeding.
  */
 public class FuelTankBlockEntity extends FluidTankBlockEntity {
-    /** mB per tick per engine. A CDG engine's buffer is 1000 mB, so it refills in a few ticks. */
+    /** mB per tick per machine. A CDG engine's buffer is 1000 mB, so it refills in a few ticks. */
     public static final int TRANSFER_RATE = 250;
     private static final int RESCAN_INTERVAL = 20;
 
-    private final List<BlockPos> adjacentEngines = new ArrayList<>();
+    private final List<BlockPos> adjacentConsumers = new ArrayList<>();
     private boolean surroundingsDirty = true;
     private int rescanTimer = 0;
 
     // Synced to the client for the goggle overlay.
     private boolean redstoneDisabled = false;
-    private int engineCount = 0;
+    private int consumerCount = 0;
 
-    // Fully qualified: the inherited nested interface IMultiBlockEntityContainer.Fluid shadows the import.
+    // "Would the machine at this position burn the tank's fluid" is cached per machine until the
+    // fluid changes or the surroundings are rescanned. Fully qualified: the inherited nested
+    // interface IMultiBlockEntityContainer.Fluid shadows the import.
     private net.minecraft.world.level.material.Fluid cachedFuelFluid = null;
-    private boolean cachedIsFuel = false;
+    private final Map<BlockPos, Boolean> cachedAccepts = new HashMap<>();
 
     public FuelTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -101,36 +107,57 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         if (surroundingsDirty || --rescanTimer <= 0)
             rescanSurroundings();
 
-        if (redstoneDisabled || adjacentEngines.isEmpty())
+        if (redstoneDisabled || adjacentConsumers.isEmpty())
             return;
 
         FluidStack contents = tankInventory.getFluid();
-        if (contents.isEmpty() || !isFuel(contents.getFluid()))
+        if (contents.isEmpty())
             return;
+        net.minecraft.world.level.material.Fluid fluid = contents.getFluid();
+        if (fluid != cachedFuelFluid) {
+            cachedFuelFluid = fluid;
+            cachedAccepts.clear();
+        }
 
-        for (BlockPos enginePos : adjacentEngines) {
-            if (!(level.getBlockEntity(enginePos) instanceof IEngine)) {
+        for (BlockPos pos : adjacentConsumers) {
+            BlockEntity be = level.getBlockEntity(pos);
+            FuelConsumer consumer = FuelConsumers.of(be);
+            if (consumer == null) {
                 surroundingsDirty = true;
                 continue;
             }
-            IFluidHandler engineTank = level.getCapability(Capabilities.FluidHandler.BLOCK, enginePos, null);
-            if (engineTank == null)
+            if (!accepts(consumer, pos, be, fluid))
                 continue;
-            FluidUtil.tryFluidTransfer(engineTank, tankInventory, TRANSFER_RATE, true);
+            IFluidHandler target = consumer.getTank(level, pos, be);
+            if (target == null)
+                continue;
+            FluidUtil.tryFluidTransfer(target, tankInventory, TRANSFER_RATE, true);
             if (tankInventory.isEmpty())
                 return;
         }
     }
 
+    private boolean accepts(FuelConsumer consumer, BlockPos pos, BlockEntity be, net.minecraft.world.level.material.Fluid fluid) {
+        Boolean cached = cachedAccepts.get(pos);
+        if (cached != null)
+            return cached;
+        boolean result = consumer.acceptsFuel(level, pos, be, fluid);
+        cachedAccepts.put(pos, result);
+        return result;
+    }
+
     private void rescanSurroundings() {
         surroundingsDirty = false;
         rescanTimer = RESCAN_INTERVAL;
+        // A machine's answer can depend on its own contents (a thruster already holding another
+        // fuel rejects a second kind), so re-ask everyone on every rescan.
+        cachedAccepts.clear();
 
         int width = getWidth();
         int height = getHeight();
         BlockPos origin = worldPosition;
         boolean powered = false;
-        Set<BlockPos> engines = new LinkedHashSet<>();
+        Set<BlockPos> consumers = new LinkedHashSet<>();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -144,19 +171,19 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
                         BlockPos neighbour = part.relative(direction);
                         if (isInsideMulti(neighbour, origin, width, height))
                             continue;
-                        if (level.getBlockEntity(neighbour) instanceof IEngine)
-                            engines.add(neighbour);
+                        if (FuelConsumers.of(level.getBlockEntity(neighbour)) != null)
+                            consumers.add(neighbour);
                     }
                 }
             }
         }
 
-        adjacentEngines.clear();
-        adjacentEngines.addAll(engines);
+        adjacentConsumers.clear();
+        adjacentConsumers.addAll(consumers);
 
-        if (powered != redstoneDisabled || engines.size() != engineCount) {
+        if (powered != redstoneDisabled || consumers.size() != consumerCount) {
             redstoneDisabled = powered;
-            engineCount = engines.size();
+            consumerCount = consumers.size();
             setChanged();
             sendData();
         }
@@ -169,16 +196,6 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         return dx >= 0 && dx < width && dy >= 0 && dy < height && dz >= 0 && dz < width;
     }
 
-    /** Mirrors IEngine#validFS: a fluid is fuel iff CDG's datapack registry has a FuelType for it. */
-    private boolean isFuel(net.minecraft.world.level.material.Fluid fluid) {
-        if (fluid != cachedFuelFluid) {
-            cachedFuelFluid = fluid;
-            HolderLookup.RegistryLookup<FuelType> registry = level.registryAccess().lookupOrThrow(CDGRegistries.FUEL_TYPE);
-            cachedIsFuel = FuelType.getTypeFor(registry, fluid) != FuelType.EMPTY;
-        }
-        return cachedIsFuel;
-    }
-
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         boolean shown = super.addToGoggleTooltip(tooltip, isPlayerSneaking);
@@ -189,10 +206,10 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         LangBuilder lang = new LangBuilder(CreateFuelTank.ID);
         if (fuelTank.redstoneDisabled)
             lang.translate("gui.goggles.fuel_tank.disabled").style(ChatFormatting.RED).forGoggles(tooltip);
-        else if (fuelTank.engineCount == 0)
+        else if (fuelTank.consumerCount == 0)
             lang.translate("gui.goggles.fuel_tank.no_engines").style(ChatFormatting.GRAY).forGoggles(tooltip);
         else
-            lang.translate("gui.goggles.fuel_tank.feeding", fuelTank.engineCount).style(ChatFormatting.GREEN).forGoggles(tooltip);
+            lang.translate("gui.goggles.fuel_tank.feeding", fuelTank.consumerCount).style(ChatFormatting.GREEN).forGoggles(tooltip);
         return true;
     }
 
@@ -201,7 +218,8 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         super.write(compound, registries, clientPacket);
         if (isController()) {
             compound.putBoolean("RedstoneDisabled", redstoneDisabled);
-            compound.putInt("EngineCount", engineCount);
+            // Key kept from 0.1.0, when only engines counted.
+            compound.putInt("EngineCount", consumerCount);
         }
     }
 
@@ -209,7 +227,7 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
     protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(compound, registries, clientPacket);
         redstoneDisabled = compound.getBoolean("RedstoneDisabled");
-        engineCount = compound.getInt("EngineCount");
+        consumerCount = compound.getInt("EngineCount");
         if (!clientPacket)
             surroundingsDirty = true;
     }
@@ -218,7 +236,8 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         return redstoneDisabled;
     }
 
-    public int getEngineCount() {
-        return engineCount;
+    /** Number of engines and thrusters currently being fed (the goggle readout). */
+    public int getConsumerCount() {
+        return consumerCount;
     }
 }

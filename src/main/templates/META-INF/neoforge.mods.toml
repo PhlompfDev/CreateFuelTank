@@ -37,3 +37,10 @@ type = "required"
 versionRange = "${cdg_version_range}"
 ordering = "AFTER"
 side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "createpropulsion"
+type = "optional"
+versionRange = "${propulsion_version_range}"
+ordering = "AFTER"
+side = "BOTH"

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.0 — Create Propulsion support
+
+**Added**
+- The Fuel Tank now feeds **Create Propulsion: Simulated** liquid thrusters: the Thruster and the Liquid Vector Thruster, on any side, with the same redstone stop. Propulsion is optional; nothing changes without it.
+- Each machine decides for itself what counts as fuel, so thrusters also take fuels Diesel Generators does not know (the ones Propulsion's own fuel list allows).
+
+**Changed**
+- Goggle readout now counts "machines" (engines and thrusters) instead of engines.
+
+**Requires**
+- As before. Create Propulsion: Simulated 1.1.5+ is optional.
+
 ## 0.1.0 — Initial release
 
 **Added**

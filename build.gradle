@@ -80,6 +80,13 @@ dependencies {
     // Create Diesel Generators: compile against IEngine/FuelType, run with it.
     compileOnly("maven.modrinth:create-diesel-generators:${cdg_version}") { transitive = false }
     runtimeOnly("maven.modrinth:create-diesel-generators:${cdg_version}") { transitive = false }
+
+    // Create Propulsion: Simulated is optional and its thruster classes moved packages between
+    // releases, so the compat code matches thrusters by registry id and never compiles against
+    // it. It is only on the runtime classpath (with Sable, which it needs) for the game tests.
+    runtimeOnly("maven.modrinth:create-propulsion-simulated:${propulsion_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:sable:${sable_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:create-aeronautics:${aeronautics_version}") { transitive = false }
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
@@ -95,7 +102,8 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             mod_authors            : mod_authors,
             mod_description        : mod_description,
             create_version_range   : create_version_range,
-            cdg_version_range      : cdg_version_range
+            cdg_version_range      : cdg_version_range,
+            propulsion_version_range: propulsion_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties
