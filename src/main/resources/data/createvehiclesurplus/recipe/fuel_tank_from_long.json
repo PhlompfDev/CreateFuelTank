@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createvehiclesurplus:long_fuel_tank"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createvehiclesurplus:fuel_tank"
+  }
+}

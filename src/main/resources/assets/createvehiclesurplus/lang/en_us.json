@@ -1,0 +1,18 @@
+{
+  "block.createvehiclesurplus.fuel_tank": "Fuel Tank",
+  "item.createvehiclesurplus.fuel_tank.tooltip": "FUEL TANK",
+  "item.createvehiclesurplus.fuel_tank.tooltip.summary": "A _Fluid Tank_ that keeps any _Diesel Engine_ or liquid _Thruster_ touching it topped up with fuel by itself. No pipes or pumps needed.",
+  "item.createvehiclesurplus.fuel_tank.tooltip.condition1": "When Powered by Redstone",
+  "item.createvehiclesurplus.fuel_tank.tooltip.behaviour1": "Stops feeding. Fluid stays inside the tank.",
+  "createvehiclesurplus.gui.goggles.fuel_tank.feeding": "Feeding %1$s machine(s)",
+  "createvehiclesurplus.gui.goggles.fuel_tank.disabled": "Feed stopped by Redstone",
+  "createvehiclesurplus.gui.goggles.fuel_tank.no_engines": "No engines or thrusters attached",
+  "block.createvehiclesurplus.long_fuel_tank": "Long Fuel Tank",
+  "item.createvehiclesurplus.long_fuel_tank.tooltip": "LONG FUEL TANK",
+  "item.createvehiclesurplus.long_fuel_tank.tooltip.summary": "A _Fuel Tank_ lying on its side. Chains end to end along the ground, up to 8 blocks long, for thin airframes.",
+  "item.createvehiclesurplus.long_fuel_tank.tooltip.condition1": "When Powered by Redstone",
+  "item.createvehiclesurplus.long_fuel_tank.tooltip.behaviour1": "Stops feeding. Fluid stays inside the tank.",
+  "block.createvehiclesurplus.differential": "Differential",
+  "item.createvehiclesurplus.differential.tooltip": "DIFFERENTIAL",
+  "item.createvehiclesurplus.differential.tooltip.summary": "Splits rotation four ways like a _Gearbox_, but every output turns the _same way_ as the input. Put it between two wheels on an axle and both drive forward."
+}

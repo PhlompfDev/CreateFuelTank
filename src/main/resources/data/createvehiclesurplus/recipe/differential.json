@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "create:cogwheel"
+    },
+    "S": {
+      "item": "create:shaft"
+    },
+    "B": {
+      "item": "create:brass_casing"
+    }
+  },
+  "pattern": [
+    " C ",
+    "SBS",
+    " C "
+  ],
+  "result": {
+    "count": 1,
+    "id": "createvehiclesurplus:differential"
+  }
+}
