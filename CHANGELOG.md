@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 — Differential
+
+**Added**
+- **Differential**: a Gearbox that keeps every output turning the input's way. One free axis, shafts on the other four faces; whichever face is driven, the other three turn at the input speed with the input's sign. Made for a driven axle: rotation comes in from the front, the two wheels on either side both drive forward. Brass-cased, animated shafts (Flywheel and fallback), no stress impact, wrench-rotatable. Sneak-place against a wall for the vertical orientation.
+- Recipe: Cogwheel top and bottom, Shaft left and right, Brass Casing in the middle.
+
 ## 0.3.0 — Long Fuel Tank
 
 **Added**

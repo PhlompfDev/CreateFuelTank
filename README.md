@@ -2,8 +2,8 @@
 
 <p align="center"><img src="thumbnail.png" width="256" alt="Fuel Tank"></p>
 
-A tiny [Create](https://modrinth.com/mod/create) addon for NeoForge 1.21.1 that adds one block:
-the **Fuel Tank**.
+A tiny [Create](https://modrinth.com/mod/create) addon for NeoForge 1.21.1 with vehicle parts:
+the **Fuel Tank**, the **Long Fuel Tank** and the **Differential**.
 
 Example: a Create Aeronautics vehicle with a Diesel Engine driving the propellers. Put a Fuel Tank beside the engine and wire a lever to the tank as an engine cutoff. That replaces the mechanical pump, pipe run and hand crank needed before.
 
@@ -20,6 +20,10 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
 - **Long Fuel Tank**: the same tank lying down. A 1x1 tube along X or Z that chains end to end
   up to 8 blocks, for thin airframes with the thruster at the end of the row. Craft it from a
   Fuel Tank alone in the grid (and back).
+- **Differential**: a Gearbox whose outputs all turn the input's way. Drive it from the front
+  and the wheel mounts on both sides of the axle turn forward together, instead of mirrored
+  like a Gearbox. Four shafts, one free axis (sneak-place against a wall for vertical), no
+  stress impact. Recipe: Cogwheel / Shaft, Brass Casing, Shaft / Cogwheel.
 
 ## Recipe
 

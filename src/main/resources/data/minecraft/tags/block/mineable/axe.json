@@ -1,8 +1,6 @@
 {
   "replace": false,
   "values": [
-    "createfueltank:fuel_tank",
-    "createfueltank:long_fuel_tank",
     "createfueltank:differential"
   ]
 }

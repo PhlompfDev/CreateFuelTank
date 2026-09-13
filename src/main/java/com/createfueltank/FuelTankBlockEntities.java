@@ -1,6 +1,9 @@
 package com.createfueltank;
 
+import com.createfueltank.client.DifferentialRenderer;
+import com.createfueltank.client.DifferentialVisual;
 import com.createfueltank.client.LongFuelTankRenderer;
+import com.createfueltank.content.differential.DifferentialBlockEntity;
 import com.createfueltank.content.fuel_tank.FuelTankBlockEntity;
 import com.createfueltank.content.long_fuel_tank.LongFuelTankBlockEntity;
 import com.simibubi.create.content.fluids.tank.FluidTankRenderer;
@@ -22,6 +25,14 @@ public class FuelTankBlockEntities {
             .validBlocks(FuelTankBlocks.LONG_FUEL_TANK)
             // Create's renderer draws the fluid column upward; the lying tank needs its own.
             .renderer(() -> LongFuelTankRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<DifferentialBlockEntity> DIFFERENTIAL = REGISTRATE
+            .blockEntity("differential", DifferentialBlockEntity::new)
+            // Flywheel draws the shafts; the block model itself renders normally (false = not through the visual).
+            .visual(() -> DifferentialVisual::new, false)
+            .validBlocks(FuelTankBlocks.DIFFERENTIAL)
+            .renderer(() -> DifferentialRenderer::new)
             .register();
 
     public static void register() {

@@ -2,17 +2,23 @@ package com.createfueltank;
 
 import com.createfueltank.client.FuelTankModel;
 import com.createfueltank.client.LongFuelTankModel;
+import com.createfueltank.content.differential.DifferentialBlock;
 import com.createfueltank.content.fuel_tank.FuelTankBlock;
 import com.createfueltank.content.fuel_tank.FuelTankItem;
 import com.createfueltank.content.long_fuel_tank.LongFuelTankBlock;
 import com.simibubi.create.AllMountedStorageTypes;
+import com.simibubi.create.AllSpriteShifts;
+import com.simibubi.create.api.stress.BlockStressValues;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType;
+import com.simibubi.create.content.decoration.encasing.EncasedCTBehaviour;
 import com.simibubi.create.content.fluids.tank.FluidTankMovementBehavior;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.MapColor;
 
 public class FuelTankBlocks {
     private static final CreateRegistrate REGISTRATE = CreateFuelTank.REGISTRATE;
@@ -39,6 +45,22 @@ public class FuelTankBlocks {
             .transform(MountedFluidStorageType.mountedFluidStorage(AllMountedStorageTypes.FLUID_TANK))
             .onRegister(MovementBehaviour.movementBehaviour(new FluidTankMovementBehavior()))
             .addLayer(() -> RenderType::cutoutMipped)
+            .simpleItem()
+            .register();
+
+    /**
+     * The Gearbox that keeps every output turning the input's way. Registered the way Create
+     * registers its Gearbox: stone-like, no stress impact, brass casing connected textures on the
+     * two free-axis faces so it blends into brass casing floors and walls.
+     */
+    public static final BlockEntry<DifferentialBlock> DIFFERENTIAL = REGISTRATE.block("differential", DifferentialBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(p -> p.noOcclusion().mapColor(MapColor.TERRACOTTA_YELLOW))
+            .onRegister(CreateRegistrate.connectedTextures(() -> new EncasedCTBehaviour(AllSpriteShifts.BRASS_CASING)))
+            .onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.BRASS_CASING,
+                    (state, face) -> face.getAxis() == state.getValue(BlockStateProperties.AXIS))))
+            // Relays cost nothing, like the Gearbox. (Unregistered blocks default to 0 too; explicit is clearer.)
+            .onRegister(block -> BlockStressValues.IMPACTS.register(block, () -> 0))
             .simpleItem()
             .register();
 
