@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "createfueltank:long_fuel_tank"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createfueltank:fuel_tank"
+  }
+}

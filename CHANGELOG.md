@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 — Long Fuel Tank
+
+**Added**
+- **Long Fuel Tank**: a Fuel Tank lying on its side. A 1x1 tube along X or Z that chains end to end, up to 8 blocks long, for thin airframes with the thruster or engine at the end of the row. Same capacity per block, same feeding, same redstone stop, window strip along the length.
+- Recipe: a Fuel Tank alone in the crafting grid becomes a Long Fuel Tank, and back.
+
 ## 0.2.0 — Create Propulsion support
 
 **Added**

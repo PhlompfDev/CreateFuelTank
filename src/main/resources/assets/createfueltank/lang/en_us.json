@@ -6,5 +6,10 @@
   "item.createfueltank.fuel_tank.tooltip.behaviour1": "Stops feeding. Fluid stays inside the tank.",
   "createfueltank.gui.goggles.fuel_tank.feeding": "Feeding %1$s machine(s)",
   "createfueltank.gui.goggles.fuel_tank.disabled": "Feed stopped by Redstone",
-  "createfueltank.gui.goggles.fuel_tank.no_engines": "No engines or thrusters attached"
+  "createfueltank.gui.goggles.fuel_tank.no_engines": "No engines or thrusters attached",
+  "block.createfueltank.long_fuel_tank": "Long Fuel Tank",
+  "item.createfueltank.long_fuel_tank.tooltip": "LONG FUEL TANK",
+  "item.createfueltank.long_fuel_tank.tooltip.summary": "A _Fuel Tank_ lying on its side. Chains end to end along the ground, up to 8 blocks long, for thin airframes.",
+  "item.createfueltank.long_fuel_tank.tooltip.condition1": "When Powered by Redstone",
+  "item.createfueltank.long_fuel_tank.tooltip.behaviour1": "Stops feeding. Fluid stays inside the tank."
 }

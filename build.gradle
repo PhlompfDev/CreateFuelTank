@@ -52,6 +52,9 @@ neoForge {
         gameTestServer {
             type = 'gameTestServer'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+            // Own directory so tests can run while a dev client is open (Sable locks its
+            // natives and the log files in the game directory).
+            gameDirectory = project.file('run-gametest')
         }
         configureEach {
             logLevel = org.slf4j.event.Level.INFO

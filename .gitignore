@@ -11,3 +11,4 @@ CLAUDE.md
 
 # Local-only: asset/thumbnail generation scripts
 tools/
+run-gametest/

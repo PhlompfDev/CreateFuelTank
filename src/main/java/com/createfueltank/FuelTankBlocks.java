@@ -1,8 +1,10 @@
 package com.createfueltank;
 
 import com.createfueltank.client.FuelTankModel;
+import com.createfueltank.client.LongFuelTankModel;
 import com.createfueltank.content.fuel_tank.FuelTankBlock;
 import com.createfueltank.content.fuel_tank.FuelTankItem;
+import com.createfueltank.content.long_fuel_tank.LongFuelTankBlock;
 import com.simibubi.create.AllMountedStorageTypes;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType;
@@ -27,6 +29,17 @@ public class FuelTankBlocks {
             .addLayer(() -> RenderType::cutoutMipped)
             .item(FuelTankItem::new)
             .build()
+            .register();
+
+    /** The same tank lying down: a 1x1 tube along X or Z. Shares models, textures and feeding code. */
+    public static final BlockEntry<LongFuelTankBlock> LONG_FUEL_TANK = REGISTRATE.block("long_fuel_tank", LongFuelTankBlock::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor((state, level, pos) -> true))
+            .onRegister(CreateRegistrate.blockModel(() -> LongFuelTankModel::new))
+            .transform(MountedFluidStorageType.mountedFluidStorage(AllMountedStorageTypes.FLUID_TANK))
+            .onRegister(MovementBehaviour.movementBehaviour(new FluidTankMovementBehavior()))
+            .addLayer(() -> RenderType::cutoutMipped)
+            .simpleItem()
             .register();
 
     public static void register() {

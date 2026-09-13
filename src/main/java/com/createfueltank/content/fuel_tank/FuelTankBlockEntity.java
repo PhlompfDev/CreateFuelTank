@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -68,7 +69,12 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, FuelTankBlockEntities.FUEL_TANK.get(), (be, side) -> {
+        registerFluidHandler(event, FuelTankBlockEntities.FUEL_TANK.get());
+        registerFluidHandler(event, FuelTankBlockEntities.LONG_FUEL_TANK.get());
+    }
+
+    private static void registerFluidHandler(RegisterCapabilitiesEvent event, BlockEntityType<? extends FuelTankBlockEntity> type) {
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, type, (be, side) -> {
             // The parent computes fluidCapability in its constructor and on every controller
             // change, so this is only null in pathological cases; ask the tick to redo it.
             if (be.fluidCapability == null)
@@ -155,21 +161,23 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
 
         int width = getWidth();
         int height = getHeight();
-        BlockPos origin = worldPosition;
+        Direction.Axis axis = getMainConnectionAxis();
         boolean powered = false;
         Set<BlockPos> consumers = new LinkedHashSet<>();
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                for (int z = 0; z < width; z++) {
-                    BlockPos part = origin.offset(x, y, z);
+        // "height" is the extent along the main axis, "width" the two others: the same layout
+        // ConnectivityHandler builds, whether the tank stands up (Y) or lies along X or Z.
+        for (int along = 0; along < height; along++) {
+            for (int a = 0; a < width; a++) {
+                for (int b = 0; b < width; b++) {
+                    BlockPos part = partAt(axis, along, a, b);
                     BlockState partState = level.getBlockState(part);
-                    if (partState.getBlock() instanceof FuelTankBlock && partState.getValue(FuelTankBlock.POWERED))
+                    if (partState.hasProperty(BlockStateProperties.POWERED) && partState.getValue(BlockStateProperties.POWERED))
                         powered = true;
 
                     for (Direction direction : Direction.values()) {
                         BlockPos neighbour = part.relative(direction);
-                        if (isInsideMulti(neighbour, origin, width, height))
+                        if (isInsideMulti(neighbour, axis, width, height))
                             continue;
                         if (FuelConsumers.of(level.getBlockEntity(neighbour)) != null)
                             consumers.add(neighbour);
@@ -189,11 +197,23 @@ public class FuelTankBlockEntity extends FluidTankBlockEntity {
         }
     }
 
-    private static boolean isInsideMulti(BlockPos pos, BlockPos origin, int width, int height) {
-        int dx = pos.getX() - origin.getX();
-        int dy = pos.getY() - origin.getY();
-        int dz = pos.getZ() - origin.getZ();
-        return dx >= 0 && dx < width && dy >= 0 && dy < height && dz >= 0 && dz < width;
+    /** Position of a part: {@code along} steps down the main axis, {@code a}/{@code b} across it. Mirrors ConnectivityHandler. */
+    private BlockPos partAt(Direction.Axis axis, int along, int a, int b) {
+        return switch (axis) {
+            case X -> worldPosition.offset(along, a, b);
+            case Y -> worldPosition.offset(a, along, b);
+            case Z -> worldPosition.offset(a, b, along);
+        };
+    }
+
+    private boolean isInsideMulti(BlockPos pos, Direction.Axis axis, int width, int height) {
+        for (Direction.Axis check : Direction.Axis.VALUES) {
+            int d = check.choose(pos.getX(), pos.getY(), pos.getZ()) - check.choose(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
+            int extent = check == axis ? height : width;
+            if (d < 0 || d >= extent)
+                return false;
+        }
+        return true;
     }
 
     @Override

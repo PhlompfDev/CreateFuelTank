@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
  * Everything a Fluid Tank does (multiblock forming, windows, wrench, bucket interaction,
  * comparator output, mounted storage on contraptions) is inherited unchanged. The only
  * behavioural addition lives in {@link FuelTankBlockEntity}: the controller pushes fuel into
- * adjacent Diesel Generators engines unless any block of the tank is powered.
+ * adjacent engines and thrusters unless any block of the tank is powered.
  * <p>
  * Fuel Tanks and Fluid Tanks never merge into one multiblock: Create's ConnectivityHandler
  * groups by block entity type, and this block has its own.
@@ -49,6 +49,14 @@ public class FuelTankBlock extends FluidTankBlock {
     @Override
     public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
         super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        onNeighborChanged(this, state, level, pos);
+    }
+
+    /**
+     * Shared by every fuel tank block: keep {@code powered} in step with the redstone signal and
+     * tell the controller its surroundings changed.
+     */
+    public static void onNeighborChanged(FluidTankBlock block, BlockState state, Level level, BlockPos pos) {
         if (level.isClientSide)
             return;
 
@@ -59,8 +67,8 @@ public class FuelTankBlock extends FluidTankBlock {
         }
 
         // Any neighbour change (redstone, an engine placed or removed next to us) invalidates
-        // the controller's engine cache. Cheap: it just sets a flag, the rescan happens on tick.
-        getBlockEntityOptional(level, pos)
+        // the controller's machine cache. Cheap: it just sets a flag, the rescan happens on tick.
+        block.getBlockEntityOptional(level, pos)
                 .map(FluidTankBlockEntity::getControllerBE)
                 .ifPresent(controller -> {
                     if (controller instanceof FuelTankBlockEntity fuelTank)
