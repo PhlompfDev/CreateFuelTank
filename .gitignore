@@ -1,0 +1,13 @@
+.gradle/
+build/
+run/
+.idea/
+*.iml
+
+# Local-only: agent config, design notes, release drafts
+.claude/
+docs/
+CLAUDE.md
+
+# Local-only: asset/thumbnail generation scripts
+tools/

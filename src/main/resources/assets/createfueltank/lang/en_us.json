@@ -1,0 +1,10 @@
+{
+  "block.createfueltank.fuel_tank": "Fuel Tank",
+  "item.createfueltank.fuel_tank.tooltip": "FUEL TANK",
+  "item.createfueltank.fuel_tank.tooltip.summary": "A _Fluid Tank_ that keeps any _Diesel Engine_ touching it topped up with fuel by itself. No pipes or pumps needed.",
+  "item.createfueltank.fuel_tank.tooltip.condition1": "When Powered by Redstone",
+  "item.createfueltank.fuel_tank.tooltip.behaviour1": "Stops feeding engines. Fluid stays inside the tank.",
+  "createfueltank.gui.goggles.fuel_tank.feeding": "Feeding %1$s engine(s)",
+  "createfueltank.gui.goggles.fuel_tank.disabled": "Feed stopped by Redstone",
+  "createfueltank.gui.goggles.fuel_tank.no_engines": "No engines attached"
+}

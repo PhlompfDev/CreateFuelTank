@@ -1,0 +1,117 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.107'
+    id 'idea'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+repositories {
+    // Create, Ponder (which carries Catnip) and Flywheel.
+    maven {
+        name = 'CreateMod'
+        url = uri('https://maven.createmod.net')
+    }
+    // Create Diesel Generators has no maven of its own; Modrinth mirrors every release.
+    maven {
+        name = 'Modrinth'
+        url = uri('https://api.modrinth.com/maven')
+        content { includeGroup 'maven.modrinth' }
+    }
+    mavenCentral()
+}
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            // FML's early loading window intermittently crashes the dev client
+            // on this machine (fox animation texture read after the union FS is
+            // closed). Purely cosmetic, so skip it.
+            systemProperty 'fml.earlyprogresswindow', 'false'
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        // Headless in-game tests: `gradlew.bat runGameTestServer`. Exit code != 0 on any failure.
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        configureEach {
+            logLevel = org.slf4j.event.Level.INFO
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+dependencies {
+    // Create's "slim" artifact excludes the nested Flywheel/Ponder/Registrate jars,
+    // so each one is declared explicitly below at the exact version Create 6.0.10
+    // bundles. NeoForge mods ship in Mojang mappings, so release jars compile
+    // directly against the dev environment.
+    implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
+    implementation("net.createmod.ponder:ponder-neoforge:${ponder_version}") { transitive = false }
+    implementation("dev.engine-room.flywheel:flywheel-neoforge-${minecraft_version}:${flywheel_version}") { transitive = false }
+    // Registrate's MC1.21 line is not on a public maven; this jar is the one
+    // extracted from Create 6.0.10's META-INF/jarjar.
+    implementation files("libs/Registrate-${registrate_version}.jar")
+
+    // Create Diesel Generators: compile against IEngine/FuelType, run with it.
+    compileOnly("maven.modrinth:create-diesel-generators:${cdg_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:create-diesel-generators:${cdg_version}") { transitive = false }
+}
+
+var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            create_version_range   : create_version_range,
+            cdg_version_range      : cdg_version_range
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from 'src/main/templates'
+    into 'build/generated/sources/modMetadata'
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
