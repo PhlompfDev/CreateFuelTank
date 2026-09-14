@@ -6,6 +6,7 @@ import com.createvehiclesurplus.content.differential.DifferentialBlock;
 import com.createvehiclesurplus.content.fuel_tank.FuelTankBlock;
 import com.createvehiclesurplus.content.fuel_tank.FuelTankItem;
 import com.createvehiclesurplus.content.long_fuel_tank.LongFuelTankBlock;
+import com.createvehiclesurplus.content.transmission.TransmissionBlock;
 import com.simibubi.create.AllMountedStorageTypes;
 import com.simibubi.create.AllSpriteShifts;
 import com.simibubi.create.api.stress.BlockStressValues;
@@ -60,6 +61,14 @@ public class VehicleSurplusBlocks {
             .onRegister(CreateRegistrate.casingConnectivity((block, cc) -> cc.make(block, AllSpriteShifts.BRASS_CASING,
                     (state, face) -> face.getAxis() == state.getValue(BlockStateProperties.AXIS))))
             // Relays cost nothing, like the Gearbox. (Unregistered blocks default to 0 too; explicit is clearer.)
+            .onRegister(block -> BlockStressValues.IMPACTS.register(block, () -> 0))
+            .simpleItem()
+            .register();
+
+    /** Inline gearbox driven by frequencies on its four long faces. No stress impact, like every relay. */
+    public static final BlockEntry<TransmissionBlock> TRANSMISSION = REGISTRATE.block("transmission", TransmissionBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(p -> p.noOcclusion().mapColor(MapColor.TERRACOTTA_GREEN))
             .onRegister(block -> BlockStressValues.IMPACTS.register(block, () -> 0))
             .simpleItem()
             .register();
