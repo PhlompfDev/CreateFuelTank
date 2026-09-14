@@ -1,9 +1,14 @@
 package com.createvehiclesurplus.content.transmission;
 
 import com.createvehiclesurplus.CreateVehicleSurplus;
+import com.createvehiclesurplus.content.link.SidedLinkBehaviour;
 import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
+import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
+import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -16,8 +21,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * The Transmission's state machine host. Create's rotation propagator asks
@@ -27,12 +34,34 @@ import java.util.Locale;
  * {@link TransmissionBlock#shift}.
  */
 public class TransmissionBlockEntity extends SplitShaftBlockEntity {
+    /** One link behaviour type per role, shared by every Transmission. */
+    public static final Map<Role, BehaviourType<SidedLinkBehaviour>> LINK_TYPES = Util.make(new EnumMap<>(Role.class), map -> {
+        for (Role role : Role.VALUES)
+            map.put(role, SidedLinkBehaviour.newType("transmission_link_" + role.id()));
+    });
+
     private final ShiftRules rules = new ShiftRules();
     private final int[] wired = new int[Role.VALUES.length];
     private final int[] linked = new int[Role.VALUES.length];
 
     public TransmissionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    // Runs inside SmartBlockEntity's constructor, before this class's fields are initialised:
+    // don't store the links in a field here, look them up by type instead.
+    @Override
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+        super.addBehaviours(behaviours);
+        for (Role role : Role.VALUES)
+            behaviours.add(new SidedLinkBehaviour(this, LINK_TYPES.get(role), role.id(),
+                    Component.translatable(CreateVehicleSurplus.ID + ".transmission.role." + role.id()),
+                    ValueBoxTransform.Dual.makeSlots(first -> new TransmissionSlot(first, role)),
+                    strength -> setLinkedStrength(role, strength)));
+    }
+
+    public SidedLinkBehaviour link(Role role) {
+        return getBehaviour(LINK_TYPES.get(role));
     }
 
     public Gear gear() {

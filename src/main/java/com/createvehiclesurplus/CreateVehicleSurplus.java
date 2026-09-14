@@ -1,6 +1,7 @@
 package com.createvehiclesurplus;
 
 import com.createvehiclesurplus.content.fuel_tank.FuelTankBlockEntity;
+import com.createvehiclesurplus.content.link.SidedLinkInteractionHandler;
 import com.simibubi.create.AllCreativeModeTabs;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -10,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(CreateVehicleSurplus.ID)
 public class CreateVehicleSurplus {
@@ -28,6 +30,7 @@ public class CreateVehicleSurplus {
         VehicleSurplusBlockEntities.register();
 
         modBus.addListener(FuelTankBlockEntity::registerCapabilities);
+        NeoForge.EVENT_BUS.addListener(SidedLinkInteractionHandler::onRightClickBlock);
 
         if (FMLEnvironment.dist.isClient())
             com.createvehiclesurplus.client.VehicleSurplusClient.init();
