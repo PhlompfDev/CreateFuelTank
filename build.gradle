@@ -25,6 +25,12 @@ repositories {
         url = uri('https://api.modrinth.com/maven')
         content { includeGroup 'maven.modrinth' }
     }
+    // CC: Tweaked API jars.
+    maven {
+        name = 'SquidDev'
+        url = uri('https://maven.squiddev.cc')
+        content { includeGroup 'cc.tweaked' }
+    }
     mavenCentral()
 }
 
@@ -90,6 +96,11 @@ dependencies {
     runtimeOnly("maven.modrinth:create-propulsion-simulated:${propulsion_version}") { transitive = false }
     runtimeOnly("maven.modrinth:sable:${sable_version}") { transitive = false }
     runtimeOnly("maven.modrinth:create-aeronautics:${aeronautics_version}") { transitive = false }
+
+    // CC: Tweaked is optional: the transmission peripheral compiles against its API and is only
+    // registered when the mod is present. The runtime jar is there for the dev client and game tests.
+    compileOnly("cc.tweaked:cc-tweaked-${minecraft_version}-forge-api:${cct_api_version}")
+    runtimeOnly("maven.modrinth:cc-tweaked:${cct_runtime_version}") { transitive = false }
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
@@ -106,7 +117,8 @@ var generateModMetadata = tasks.register('generateModMetadata', ProcessResources
             mod_description        : mod_description,
             create_version_range   : create_version_range,
             cdg_version_range      : cdg_version_range,
-            propulsion_version_range: propulsion_version_range
+            propulsion_version_range: propulsion_version_range,
+            cct_version_range      : cct_version_range
     ]
     inputs.properties replaceProperties
     expand replaceProperties

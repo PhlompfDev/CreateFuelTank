@@ -9,6 +9,7 @@ import net.createmod.catnip.lang.FontHelper.Palette;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
@@ -31,6 +32,9 @@ public class CreateVehicleSurplus {
 
         modBus.addListener(FuelTankBlockEntity::registerCapabilities);
         NeoForge.EVENT_BUS.addListener(SidedLinkInteractionHandler::onRightClickBlock);
+        // Fully qualified on purpose: the compat class (and CC's API) only loads when CC is installed.
+        if (ModList.get().isLoaded("computercraft"))
+            com.createvehiclesurplus.compat.cc.CcCompat.init(modBus);
 
         if (FMLEnvironment.dist.isClient())
             com.createvehiclesurplus.client.VehicleSurplusClient.init();
