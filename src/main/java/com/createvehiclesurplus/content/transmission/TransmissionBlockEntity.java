@@ -44,9 +44,9 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
     private final ShiftRules rules = new ShiftRules();
     private final int[] wired = new int[Role.VALUES.length];
     private final int[] linked = new int[Role.VALUES.length];
-    // Client-side only: the gear drum's angle in degrees (45 per gear index), eased on every shift.
-    private final LerpedFloat drumAngle = LerpedFloat.linear();
-    private boolean drumStarted;
+    // Client-side only: the gear wheels' angle in degrees (60 per gear index, one side of the hexagon), eased on every shift.
+    private final LerpedFloat wheelAngle = LerpedFloat.linear();
+    private boolean wheelStarted;
 
     public TransmissionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -91,24 +91,24 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
         if (level == null)
             return;
         if (level.isClientSide) {
-            tickDrum();
+            tickWheels();
             return;
         }
         apply(rules.tick(gear(), level.getGameTime()), false);
     }
 
-    private void tickDrum() {
-        float target = gear().index() * 45f;
-        if (!drumStarted) {
-            drumAngle.startWithValue(target);
-            drumStarted = true;
+    private void tickWheels() {
+        float target = gear().index() * 60f;
+        if (!wheelStarted) {
+            wheelAngle.startWithValue(target);
+            wheelStarted = true;
         }
-        drumAngle.chase(target, 0.35, LerpedFloat.Chaser.EXP);
-        drumAngle.tickChaser();
+        wheelAngle.chase(target, 0.35, LerpedFloat.Chaser.EXP);
+        wheelAngle.tickChaser();
     }
 
-    public float drumAngle(float partialTicks) {
-        return drumAngle.getValue(partialTicks);
+    public float wheelAngle(float partialTicks) {
+        return wheelAngle.getValue(partialTicks);
     }
 
     /** Re-reads the redstone signal on each role's face. Called on neighbour changes and role rotation. */

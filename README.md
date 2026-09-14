@@ -29,9 +29,10 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
   and four forward gears (1/4, 1/2, 3/4, 1:1; every gear is a reduction, so no shift can break
   the driveline). Each long face has built-in Redstone Link slots, so no separate link block is
   needed: Up and Down shift on a pulse, the Analog face picks the gear from signal strength, and
-  holding the Neutral face locks the output. Wired redstone works too. Goggles show the gear and
-  both speeds; a drum on the housing shows the gear number. Wrench a shaft end to turn the faces
-  around the shaft. Recipe (shapeless): Brass Casing, Gearshift, Redstone Link, Large Cogwheel.
+  holding the Neutral face locks the output. Wired redstone works too. The two frequency slots on
+  each face stack like a Redstone Link's (first on top), and a gear wheel beside them rolls to the
+  current gear. Goggles show the gear and both speeds. Wrench a shaft end to turn the faces around
+  the shaft. Recipe (shapeless): Brass Casing, Gearshift, Redstone Link, Large Cogwheel.
 - **ComputerCraft** (optional): with CC: Tweaked installed the Transmission is a `transmission`
   peripheral: `getGear()`, `setGear("1/2")`, `shiftUp()`, `shiftDown()`, `getRatio()`,
   `getInputSpeed()`, `getOutputSpeed()`, `getControl()`. Refused calls return `false` and a

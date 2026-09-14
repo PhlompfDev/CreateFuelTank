@@ -23,14 +23,18 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Draws what the static model can't: the frequency items in the sockets, the role glyphs and the
- * gear drum (both depend on the {@code roles} property, which blockstate rotations can't express
- * around a horizontal shaft). Then hands over to Create's split-shaft renderer, which draws the
- * two half shafts only when Flywheel is off.
+ * Draws what the static model can't: the frequency items in the sockets, and on every long face
+ * its role glyph and a gear wheel that rolls to the current gear. Both are partials modelled on
+ * the north face and turned onto each face with that face's up direction, so they read upright
+ * whatever the axis and role layout. Then hands over to Create's split-shaft renderer, which draws
+ * the two half shafts only when Flywheel is off.
  */
 public class TransmissionRenderer extends SplitShaftRenderer {
-    private static final float DRUM_X = 2.5f / 16;
-    private static final float DRUM_Z = 2.5f / 16;
+    // The wheel's axis in the partial's frame: along X, 8 px up, 6.16 px behind the block's north
+    // boundary (a 7 px hexagon whose front side sits 0.1 px inside the boundary). Must match
+    // tools/gen_transmission_assets.py.
+    private static final float WHEEL_Y = 8f / 16;
+    private static final float WHEEL_Z = (0.1f + 7f * (float) Math.sqrt(3) / 2) / 16;
 
     public TransmissionRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
@@ -40,7 +44,7 @@ public class TransmissionRenderer extends SplitShaftRenderer {
     protected void renderSafe(SplitShaftBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
         if (be instanceof TransmissionBlockEntity transmission && be.getBlockState().getBlock() instanceof TransmissionBlock) {
             renderFrequencies(transmission, ms, buffer, light, overlay);
-            renderRoleParts(transmission, partialTicks, ms, buffer, light);
+            renderFaceParts(transmission, partialTicks, ms, buffer, light);
         }
         super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
     }
@@ -63,33 +67,38 @@ public class TransmissionRenderer extends SplitShaftRenderer {
         }
     }
 
-    private static void renderRoleParts(TransmissionBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
+    private static void renderFaceParts(TransmissionBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
         BlockState state = be.getBlockState();
+        Direction.Axis axis = state.getValue(TransmissionBlock.AXIS);
         VertexConsumer consumer = buffer.getBuffer(RenderType.cutoutMipped());
-        ms.pushPose();
-        ms.translate(0.5, 0.5, 0.5);
-        ms.mulPose(canonicalToBlock(state));
-        ms.translate(-0.5, -0.5, -0.5);
-        CachedBuffers.partial(TransmissionPartials.GLYPHS, state).light(light).renderInto(ms, consumer);
+        float wheelAngle = be.wheelAngle(partialTicks);
+        for (Role role : Role.VALUES) {
+            Direction face = TransmissionBlock.faceOf(state, role);
+            ms.pushPose();
+            ms.translate(0.5, 0.5, 0.5);
+            ms.mulPose(northToFace(face, TransmissionBlock.faceUp(axis, face)));
+            ms.translate(-0.5, -0.5, -0.5);
+            CachedBuffers.partial(TransmissionPartials.GLYPHS.get(role), state).light(light).renderInto(ms, consumer);
 
-        ms.translate(DRUM_X, 0, DRUM_Z);
-        ms.mulPose(Axis.YP.rotationDegrees(-be.drumAngle(partialTicks)));
-        ms.translate(-DRUM_X, 0, -DRUM_Z);
-        CachedBuffers.partial(TransmissionPartials.DRUM, state).light(light).renderInto(ms, consumer);
-        ms.popPose();
+            ms.translate(0, WHEEL_Y, WHEEL_Z);
+            ms.mulPose(Axis.XP.rotationDegrees(wheelAngle));
+            ms.translate(0, -WHEEL_Y, -WHEEL_Z);
+            CachedBuffers.partial(TransmissionPartials.WHEEL, state).light(light).renderInto(ms, consumer);
+            ms.popPose();
+        }
     }
 
-    /** Rotation taking the canonical frame (Up north, Analog east, axis Y) onto this block's roles. */
-    static Quaternionf canonicalToBlock(BlockState state) {
-        Vector3f up = normal(TransmissionBlock.faceOf(state, Role.UP));
-        Vector3f analog = normal(TransmissionBlock.faceOf(state, Role.ANALOG));
-        Vector3f third = new Vector3f(up).cross(analog);
-        Vector3f canonicalUp = normal(Direction.NORTH);
-        Vector3f canonicalAnalog = normal(Direction.EAST);
-        Vector3f canonicalThird = new Vector3f(canonicalUp).cross(canonicalAnalog);
+    /** Rotation taking the partials' frame (north face, up = +Y) onto {@code face} with up = {@code up}. */
+    static Quaternionf northToFace(Direction face, Direction up) {
+        Vector3f n = normal(face);
+        Vector3f u = normal(up);
+        Vector3f r = new Vector3f(u).cross(n);
+        Vector3f n0 = normal(Direction.NORTH);
+        Vector3f u0 = normal(Direction.UP);
+        Vector3f r0 = new Vector3f(u0).cross(n0);
         // Columns are the frame's axes; for orthonormal frames the rotation is target * source^T.
-        Matrix3f target = new Matrix3f(up, analog, third);
-        Matrix3f source = new Matrix3f(canonicalUp, canonicalAnalog, canonicalThird);
+        Matrix3f target = new Matrix3f(u, n, r);
+        Matrix3f source = new Matrix3f(u0, n0, r0);
         return new Quaternionf().setFromNormalized(target.mul(source.transpose()));
     }
 

@@ -106,6 +106,28 @@ public class TransmissionLinkGameTests {
         });
     }
 
+    /**
+     * Slots stack like a Redstone Link's: on a side face the first frequency is the upper slot; on
+     * the top face of an X shaft it is the south one, as on Create's floor link.
+     */
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public static void first_slot_is_the_upper_one(GameTestHelper helper) {
+        placeRig(helper, Gear.NEUTRAL);
+        helper.runAfterDelay(5, () -> {
+            BlockPos abs = helper.absolutePos(BOX);
+            BlockState state = helper.getLevel().getBlockState(abs);
+            TransmissionBlockEntity be = transmission(helper);
+            Vec3 sideFirst = be.link(Role.ANALOG).getSlot(true).getLocalOffset(helper.getLevel(), abs, state);
+            Vec3 sideSecond = be.link(Role.ANALOG).getSlot(false).getLocalOffset(helper.getLevel(), abs, state);
+            check(sideFirst.y > sideSecond.y, "side face: first slot " + sideFirst + " should be above " + sideSecond);
+            Vec3 topFirst = be.link(Role.UP).getSlot(true).getLocalOffset(helper.getLevel(), abs, state);
+            Vec3 topSecond = be.link(Role.UP).getSlot(false).getLocalOffset(helper.getLevel(), abs, state);
+            check(topFirst.z > topSecond.z, "top face: first slot " + topFirst + " should be south of " + topSecond);
+            check(topFirst.x == 0.5 && topSecond.x == 0.5, "top face slots should be centred along the shaft");
+            helper.succeed();
+        });
+    }
+
     private static void placeTransmitter(GameTestHelper helper) {
         helper.setBlock(LINK, AllBlocks.REDSTONE_LINK.getDefaultState()
                 .setValue(RedstoneLinkBlock.RECEIVER, false)

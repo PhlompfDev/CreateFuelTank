@@ -1,0 +1,11 @@
+{
+  "loader": "neoforge:obj",
+  "model": "createvehiclesurplus:models/block/transmission/wheel.obj",
+  "flip_v": true,
+  "automatic_culling": false,
+  "textures": {
+    "wheel": "createvehiclesurplus:block/transmission/wheel",
+    "brass": "create:block/brass_casing",
+    "particle": "create:block/brass_casing"
+  }
+}

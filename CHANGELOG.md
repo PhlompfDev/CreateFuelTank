@@ -5,7 +5,7 @@
 **Added**
 - **Transmission**: an inline gearbox with Reverse, Neutral and four forward gears (1/4, 1/2, 3/4, 1:1). Every gear is a reduction, so a shift can never push the output past Create's speed limit.
 - Built-in Redstone Link frequencies on its four long faces: Up and Down shift one gear per pulse, the Analog face sets the gear from signal strength (and overrides the pulses), holding the Neutral face locks the output in Neutral. Wired redstone into a face does the same. Shifts are at least 4 ticks apart.
-- Olive bell housing with brass flanges and sockets, face markings, and a gear drum that rolls to the current gear. Goggles show the gear, the ratio and both speeds. Wrench a shaft end to turn the faces around the shaft.
+- Olive bell housing with brass flanges, shaft ends that show through the end plates, and on every face two brass sockets stacked like a Redstone Link's (first on top), a role marking and a gear wheel that rolls to the current gear. Goggles show the gear, the ratio and both speeds. Wrench a shaft end to turn the faces around the shaft.
 - Optional **CC: Tweaked** support: a `transmission` peripheral to read and shift the gear from a computer.
 - Recipe (shapeless): Brass Casing, Gearshift, Redstone Link, Large Cogwheel.
 - Ponder scene for the Transmission.

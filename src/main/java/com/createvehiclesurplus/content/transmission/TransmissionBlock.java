@@ -70,6 +70,21 @@ public class TransmissionBlock extends AbstractEncasedShaftBlock implements IBE<
         return null;
     }
 
+    /**
+     * The "up" direction of a long face: its first frequency slot sits on that side of the second,
+     * and its glyph and gear wheel are drawn upright along it. On a wall it is world up, like a
+     * wall-mounted Redstone Link. On the top and bottom faces of a horizontal shaft it points across
+     * the shaft (south on top of an X shaft, north underneath, as Create's floor and ceiling links do).
+     */
+    public static Direction faceUp(Axis axis, Direction face) {
+        if (axis == Axis.Y || face.getAxis().isHorizontal())
+            return Direction.UP;
+        boolean top = face == Direction.UP;
+        if (axis == Axis.X)
+            return top ? Direction.SOUTH : Direction.NORTH;
+        return top ? Direction.WEST : Direction.EAST;
+    }
+
     public static Gear gearOf(BlockState state) {
         return Gear.byIndex(state.getValue(GEAR));
     }

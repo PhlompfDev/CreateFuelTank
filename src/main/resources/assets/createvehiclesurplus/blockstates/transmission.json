@@ -1,16 +1,13 @@
 {
   "variants": {
+    "axis=x": {
+      "model": "createvehiclesurplus:block/transmission/block_x"
+    },
     "axis=y": {
-      "model": "createvehiclesurplus:block/transmission/block"
+      "model": "createvehiclesurplus:block/transmission/block_y"
     },
     "axis=z": {
-      "model": "createvehiclesurplus:block/transmission/block",
-      "x": 90
-    },
-    "axis=x": {
-      "model": "createvehiclesurplus:block/transmission/block",
-      "x": 90,
-      "y": 90
+      "model": "createvehiclesurplus:block/transmission/block_z"
     }
   }
 }

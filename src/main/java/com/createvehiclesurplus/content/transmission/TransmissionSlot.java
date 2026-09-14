@@ -11,8 +11,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * One of a role's two frequency slots: centred across the role's face, 11 px (first) or 5 px
- * (second) along the shaft, a quarter pixel outside the block where the brass sockets end.
+ * One of a role's two frequency slots. They are stacked like a wall-mounted Redstone Link's: the
+ * first 2.5 px above the face centre, the second 2.5 px below it, where "above" is the face's
+ * {@link TransmissionBlock#faceUp up direction}; a quarter pixel outside the block where the brass
+ * sockets end.
  */
 public class TransmissionSlot extends ValueBoxTransform.Dual {
     private final Role role;
@@ -27,13 +29,11 @@ public class TransmissionSlot extends ValueBoxTransform.Dual {
         if (!(state.getBlock() instanceof TransmissionBlock))
             return null;
         Direction face = TransmissionBlock.faceOf(state, role);
-        double along = (isFirst() ? 11 : 5) / 16.0;
-        Vec3 onFace = Vec3.atLowerCornerOf(face.getNormal()).scale(0.5 + 0.25 / 16).add(0.5, 0.5, 0.5);
-        return switch (state.getValue(TransmissionBlock.AXIS)) {
-            case X -> new Vec3(along, onFace.y, onFace.z);
-            case Y -> new Vec3(onFace.x, along, onFace.z);
-            case Z -> new Vec3(onFace.x, onFace.y, along);
-        };
+        Direction up = TransmissionBlock.faceUp(state.getValue(TransmissionBlock.AXIS), face);
+        double upOffset = (isFirst() ? 2.5 : -2.5) / 16;
+        return new Vec3(0.5, 0.5, 0.5)
+                .add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.5 + 0.25 / 16))
+                .add(Vec3.atLowerCornerOf(up.getNormal()).scale(upOffset));
     }
 
     @Override
@@ -41,7 +41,8 @@ public class TransmissionSlot extends ValueBoxTransform.Dual {
         if (!(state.getBlock() instanceof TransmissionBlock))
             return;
         Direction face = TransmissionBlock.faceOf(state, role);
-        float yRot = AngleHelper.horizontalAngle(face) + 180;
+        // Same as Create's link slot: walls face outwards, top and bottom lie flat.
+        float yRot = face.getAxis().isVertical() ? 0 : AngleHelper.horizontalAngle(face) + 180;
         float xRot = face == Direction.UP ? 90 : face == Direction.DOWN ? 270 : 0;
         TransformStack.of(ms).rotateYDegrees(yRot).rotateXDegrees(xRot);
     }

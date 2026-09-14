@@ -41,7 +41,7 @@ public class VehicleSurplusBlockEntities {
     public static final BlockEntityEntry<TransmissionBlockEntity> TRANSMISSION = REGISTRATE
             .blockEntity("transmission", TransmissionBlockEntity::new)
             // Create's split-shaft visual draws each half at its own speed (the output at the geared speed).
-            // true = the block-entity renderer keeps running under Flywheel (it draws items and the drum there).
+            // true = the block-entity renderer keeps running under Flywheel (it draws items, glyphs and gear wheels there).
             .visual(() -> SplitShaftVisual::new, true)
             .validBlocks(VehicleSurplusBlocks.TRANSMISSION)
             .renderer(() -> TransmissionRenderer::new)
