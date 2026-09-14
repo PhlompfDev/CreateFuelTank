@@ -1,57 +1,39 @@
 # Changelog
 
-## 0.6.0 — Transmission
+## 0.6.0 — Create: Vehicle Surplus
+
+Create: Fuel Tank is now **Create: Vehicle Surplus**, a home for vehicle parts in general.
 
 **Added**
-- **Transmission**: an inline gearbox with Reverse, Neutral and four forward gears (1/4, 1/2, 3/4, 1:1). Every gear is a reduction, so a shift can never push the output past Create's speed limit.
-- Built-in Redstone Link frequencies on its four long faces: Up and Down shift one gear per pulse, the Analog face sets the gear from signal strength (and overrides the pulses), holding the Neutral face locks the output in Neutral. Wired redstone into a face does the same. Shifts are at least 4 ticks apart.
-- Olive bell housing with brass flanges, shaft ends that show through the end plates, and on every face two brass sockets stacked like a Redstone Link's (first on top), a role marking and a gear wheel that rolls to the current gear. Goggles show the gear, the ratio and both speeds. Wrench a shaft end to turn the faces around the shaft.
-- Optional **CC: Tweaked** support: a `transmission` peripheral to read and shift the gear from a computer.
-- Recipe (shapeless): Brass Casing, Gearshift, Redstone Link, Large Cogwheel.
-- Ponder scene for the Transmission.
-
-## 0.5.0 — Renamed to Create: Vehicle Surplus
-
-**Added**
-- Ponder scenes for the Fuel Tank, the Long Fuel Tank and the Differential (hover the item and hold W).
+- **Transmission**: an inline gearbox with Reverse, Neutral and gears 1/4, 1/2, 3/4 and 1:1.
+- Built-in Redstone Link slots on the Transmission's faces: Up and Down shift a gear, Analog picks the gear by signal strength, Neutral locks the output. Wired redstone works too.
+- Gear wheels on the Transmission show the current gear; Goggles show the gear and both speeds.
+- Optional CC: Tweaked support: the Transmission is a `transmission` peripheral.
+- **Differential**: a Gearbox whose outputs all turn the input's way, for driven axles.
+- Ponder scenes for every block.
 
 **Changed**
-- The mod is now **Create: Vehicle Surplus** (mod id `createvehiclesurplus`, was `createfueltank`). Nothing else changed.
-- **Worlds from 0.4.0 and earlier**: because the mod id changed, blocks placed under the old id will not carry over. Break and re-place Fuel Tanks, Long Fuel Tanks and Differentials before updating, or keep the old jar for those worlds.
-
-## 0.4.0 — Differential
-
-**Added**
-- **Differential**: a Gearbox that keeps every output turning the input's way. One free axis, shafts on the other four faces; whichever face is driven, the other three turn at the input speed with the input's sign. Made for a driven axle: rotation comes in from the front, the two wheels on either side both drive forward. Brass-cased, animated shafts (Flywheel and fallback), no stress impact, wrench-rotatable. Sneak-place against a wall for the vertical orientation.
-- Recipe: Cogwheel top and bottom, Shaft left and right, Brass Casing in the middle.
+- New name and mod id: `createvehiclesurplus` (was `createfueltank`). Blocks placed with an older version do not carry over, so break them before updating.
 
 ## 0.3.0 — Long Fuel Tank
 
 **Added**
-- **Long Fuel Tank**: a Fuel Tank lying on its side. A 1x1 tube along X or Z that chains end to end, up to 8 blocks long, for thin airframes with the thruster or engine at the end of the row. Same capacity per block, same feeding, same redstone stop, window strip along the length.
-- Recipe: a Fuel Tank alone in the crafting grid becomes a Long Fuel Tank, and back.
+- **Long Fuel Tank**: the Fuel Tank lying down, a 1x1 tube up to 8 blocks long.
+- Recipe: a Fuel Tank alone in the grid (and back).
 
 ## 0.2.0 — Create Propulsion support
 
 **Added**
-- The Fuel Tank now feeds **Create Propulsion: Simulated** liquid thrusters: the Thruster and the Liquid Vector Thruster, on any side, with the same redstone stop. Propulsion is optional; nothing changes without it.
-- Each machine decides for itself what counts as fuel, so thrusters also take fuels Diesel Generators does not know (the ones Propulsion's own fuel list allows).
+- Fuel Tanks feed Create Propulsion: Simulated's Thruster and Liquid Vector Thruster (optional).
 
 **Changed**
-- Goggle readout now counts "machines" (engines and thrusters) instead of engines.
-
-**Requires**
-- As before. Create Propulsion: Simulated 1.1.5+ is optional.
+- Goggles count machines (engines and thrusters) instead of engines.
 
 ## 0.1.0 — Initial release
 
 **Added**
-- **Fuel Tank** block: a Create Fluid Tank that feeds fuel directly into any Create Diesel Generators engine touching it (normal, modular and huge engines), on any side of the engine.
-- Only fluids Diesel Generators recognises as fuel are pushed; other fluids stay in the tank.
-- Redstone control: powering any block of the tank stops the feed until the signal drops.
-- Multiblock support up to 3x3 wide, same as the Fluid Tank, including the place-a-whole-layer shortcut.
-- Engineer's Goggles readout showing feed status.
-- Recipe: Brass Sheet / Wooden Barrel / Brass Sheet in a column.
-
-**Requires**
-- NeoForge 1.21.1 (Java 21), Create 6.0.10+, Create Diesel Generators 1.3.15+.
+- **Fuel Tank**: a Create Fluid Tank that feeds every Diesel Generators engine touching it, on any side.
+- Only fluids the engine burns are fed; redstone on any block of the tank stops the feed.
+- Multiblocks up to 3x3, like the Fluid Tank.
+- Goggles show the feed status.
+- Recipe: Brass Sheet, Wooden Barrel, Brass Sheet in a column.
