@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "create:brass_casing"
+    },
+    {
+      "item": "create:gearshift"
+    },
+    {
+      "item": "create:redstone_link"
+    },
+    {
+      "item": "create:large_cogwheel"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createvehiclesurplus:transmission"
+  }
+}

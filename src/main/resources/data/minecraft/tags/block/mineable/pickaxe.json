@@ -3,6 +3,7 @@
   "values": [
     "createvehiclesurplus:fuel_tank",
     "createvehiclesurplus:long_fuel_tank",
-    "createvehiclesurplus:differential"
+    "createvehiclesurplus:differential",
+    "createvehiclesurplus:transmission"
   ]
 }
