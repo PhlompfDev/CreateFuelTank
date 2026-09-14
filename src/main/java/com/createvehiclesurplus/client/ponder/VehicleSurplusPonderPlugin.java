@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Ponder entry point. Registered once on the client from {@link com.createvehiclesurplus.client.VehicleSurplusClient};
- * the scenes themselves live in {@link FuelTankScenes} and {@link DifferentialScenes}, their
+ * the scenes themselves live in {@link FuelTankScenes}, {@link DifferentialScenes} and {@link TransmissionScenes}, their
  * structures in {@code assets/createvehiclesurplus/ponder/} (written by the local generator script)
  * and their text in the lang file under {@code createvehiclesurplus.ponder.<scene>.*}.
  */
@@ -33,5 +33,7 @@ public class VehicleSurplusPonderPlugin implements PonderPlugin {
                 .addStoryBoard("fuel_tank/feeding", FuelTankScenes::feeding);
         HELPER.forComponents(VehicleSurplusBlocks.DIFFERENTIAL)
                 .addStoryBoard("differential", DifferentialScenes::differential, AllCreatePonderTags.KINETIC_RELAYS);
+        HELPER.forComponents(VehicleSurplusBlocks.TRANSMISSION)
+                .addStoryBoard("transmission", TransmissionScenes::transmission, AllCreatePonderTags.KINETIC_RELAYS);
     }
 }

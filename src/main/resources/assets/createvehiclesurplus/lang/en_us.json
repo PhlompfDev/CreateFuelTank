@@ -50,5 +50,16 @@
   "createvehiclesurplus.gui.goggles.transmission.speed": "In %1$s RPM, out %2$s RPM",
   "createvehiclesurplus.gui.goggles.transmission.control.neutral_hold": "Held in neutral",
   "createvehiclesurplus.gui.goggles.transmission.control.analog": "Gear set by the analog face",
-  "createvehiclesurplus.gui.goggles.transmission.control.free": "Shifted by links and computers"
+  "createvehiclesurplus.gui.goggles.transmission.control.free": "Shifted by links and computers",
+  "createvehiclesurplus.ponder.transmission.header": "Shifting gears with the Transmission",
+  "createvehiclesurplus.ponder.transmission.text_1": "The Transmission sits inline on a shaft and changes the speed passed through it",
+  "createvehiclesurplus.ponder.transmission.text_2": "It starts in Neutral: the output is disconnected",
+  "createvehiclesurplus.ponder.transmission.text_3": "Each long face takes a frequency like a Redstone Link: right-click its two slots with items",
+  "createvehiclesurplus.ponder.transmission.text_4": "A pulse on the Up face shifts one gear up",
+  "createvehiclesurplus.ponder.transmission.text_5": "The Down face works the same way. Every gear is a reduction: 1/4, 1/2, 3/4 and 1:1, plus Reverse",
+  "createvehiclesurplus.ponder.transmission.text_6": "The Analog face picks a gear from signal strength and overrides the pulses",
+  "createvehiclesurplus.ponder.transmission.text_7": "Holding the Neutral face locks the output in Neutral",
+  "createvehiclesurplus.ponder.transmission.text_8": "Lower gears turn the output slower and put less load on the engine",
+  "createvehiclesurplus.ponder.transmission.text_9": "With CC: Tweaked installed, a computer can drive it as a 'transmission' peripheral",
+  "createvehiclesurplus.ponder.transmission.text_10": "Use a Wrench on a shaft end to turn the faces around the shaft"
 }
