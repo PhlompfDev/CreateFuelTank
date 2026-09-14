@@ -3,7 +3,7 @@
 <p align="center"><img src="thumbnail.png" width="256" alt="Fuel Tank"></p>
 
 A tiny [Create](https://modrinth.com/mod/create) addon for NeoForge 1.21.1 with vehicle parts:
-the **Fuel Tank**, the **Long Fuel Tank** and the **Differential**.
+the **Fuel Tank**, the **Long Fuel Tank**, the **Differential** and the **Transmission**.
 
 Example: a Create Aeronautics vehicle with a Diesel Engine driving the propellers. Put a Fuel Tank beside the engine and wire a lever to the tank as an engine cutoff. That replaces the mechanical pump, pipe run and hand crank needed before.
 
@@ -25,6 +25,17 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
   and the wheel mounts on both sides of the axle turn forward together, instead of mirrored
   like a Gearbox. Four shafts, one free axis (sneak-place against a wall for vertical), no
   stress impact. Recipe: Cogwheel / Shaft, Brass Casing, Shaft / Cogwheel.
+- **Transmission**: an inline gearbox for the driveline, shifted by frequency. Reverse, Neutral
+  and four forward gears (1/4, 1/2, 3/4, 1:1; every gear is a reduction, so no shift can break
+  the driveline). Each long face has built-in Redstone Link slots, so no separate link block is
+  needed: Up and Down shift on a pulse, the Analog face picks the gear from signal strength, and
+  holding the Neutral face locks the output. Wired redstone works too. Goggles show the gear and
+  both speeds; a drum on the housing shows the gear number. Wrench a shaft end to turn the faces
+  around the shaft. Recipe (shapeless): Brass Casing, Gearshift, Redstone Link, Large Cogwheel.
+- **ComputerCraft** (optional): with CC: Tweaked installed the Transmission is a `transmission`
+  peripheral: `getGear()`, `setGear("1/2")`, `shiftUp()`, `shiftDown()`, `getRatio()`,
+  `getInputSpeed()`, `getOutputSpeed()`, `getControl()`. Refused calls return `false` and a
+  reason (`cooldown`, `neutral_hold`, `analog_override`, `limit`).
 
 ## Recipe
 
@@ -39,5 +50,6 @@ Example: a Create Aeronautics vehicle with a Diesel Engine driving the propeller
 | Create | 6.0.10 – 6.0.x |
 | Create Diesel Generators | 1.21.1-1.3.15+ |
 | Create Propulsion: Simulated | 1.1.5+ (optional) |
+| CC: Tweaked | 1.113+ (optional, for the `transmission` peripheral) |
 
 Create Aeronautics / Simulated are not required; the tank works in the regular world too.
