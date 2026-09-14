@@ -3,12 +3,12 @@ package com.createvehiclesurplus;
 import com.createvehiclesurplus.client.DifferentialRenderer;
 import com.createvehiclesurplus.client.DifferentialVisual;
 import com.createvehiclesurplus.client.LongFuelTankRenderer;
+import com.createvehiclesurplus.client.TransmissionRenderer;
 import com.createvehiclesurplus.content.differential.DifferentialBlockEntity;
 import com.createvehiclesurplus.content.fuel_tank.FuelTankBlockEntity;
 import com.createvehiclesurplus.content.long_fuel_tank.LongFuelTankBlockEntity;
 import com.createvehiclesurplus.content.transmission.TransmissionBlockEntity;
 import com.simibubi.create.content.fluids.tank.FluidTankRenderer;
-import com.simibubi.create.content.kinetics.transmission.SplitShaftRenderer;
 import com.simibubi.create.content.kinetics.transmission.SplitShaftVisual;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
@@ -44,7 +44,7 @@ public class VehicleSurplusBlockEntities {
             // true = the block-entity renderer keeps running under Flywheel (it draws items and the drum there).
             .visual(() -> SplitShaftVisual::new, true)
             .validBlocks(VehicleSurplusBlocks.TRANSMISSION)
-            .renderer(() -> SplitShaftRenderer::new)
+            .renderer(() -> TransmissionRenderer::new)
             .register();
 
     public static void register() {

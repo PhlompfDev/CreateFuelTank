@@ -6,6 +6,7 @@ import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BehaviourType;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
+import net.createmod.catnip.animation.LerpedFloat;
 import net.createmod.catnip.lang.LangBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -43,6 +44,9 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
     private final ShiftRules rules = new ShiftRules();
     private final int[] wired = new int[Role.VALUES.length];
     private final int[] linked = new int[Role.VALUES.length];
+    // Client-side only: the gear drum's angle in degrees (45 per gear index), eased on every shift.
+    private final LerpedFloat drumAngle = LerpedFloat.linear();
+    private boolean drumStarted;
 
     public TransmissionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -84,9 +88,27 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
     @Override
     public void tick() {
         super.tick();
-        if (level == null || level.isClientSide)
+        if (level == null)
             return;
+        if (level.isClientSide) {
+            tickDrum();
+            return;
+        }
         apply(rules.tick(gear(), level.getGameTime()), false);
+    }
+
+    private void tickDrum() {
+        float target = gear().index() * 45f;
+        if (!drumStarted) {
+            drumAngle.startWithValue(target);
+            drumStarted = true;
+        }
+        drumAngle.chase(target, 0.35, LerpedFloat.Chaser.EXP);
+        drumAngle.tickChaser();
+    }
+
+    public float drumAngle(float partialTicks) {
+        return drumAngle.getValue(partialTicks);
     }
 
     /** Re-reads the redstone signal on each role's face. Called on neighbour changes and role rotation. */
