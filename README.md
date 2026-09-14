@@ -16,7 +16,7 @@ Create Aeronautics / Simulated builds, and they work anywhere else too.
   Each long face has built-in Redstone Link slots: Up and Down shift a gear, Analog picks the
   gear by signal strength, Neutral locks the output. A wheel on each face shows the gear.
 
-Every block has a Ponder scene (hover the item and hold W).
+Every block has a Ponder scene.
 
 ## Compatibility
 
