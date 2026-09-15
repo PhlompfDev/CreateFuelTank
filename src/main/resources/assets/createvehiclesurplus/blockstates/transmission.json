@@ -1,13 +1,40 @@
 {
   "variants": {
-    "axis=x": {
-      "model": "createvehiclesurplus:block/transmission/block_x"
+    "axis=x,roles=0": {
+      "model": "createvehiclesurplus:block/transmission/block_x_0"
     },
-    "axis=y": {
-      "model": "createvehiclesurplus:block/transmission/block_y"
+    "axis=x,roles=1": {
+      "model": "createvehiclesurplus:block/transmission/block_x_1"
     },
-    "axis=z": {
-      "model": "createvehiclesurplus:block/transmission/block_z"
+    "axis=x,roles=2": {
+      "model": "createvehiclesurplus:block/transmission/block_x_2"
+    },
+    "axis=x,roles=3": {
+      "model": "createvehiclesurplus:block/transmission/block_x_3"
+    },
+    "axis=y,roles=0": {
+      "model": "createvehiclesurplus:block/transmission/block_y_0"
+    },
+    "axis=y,roles=1": {
+      "model": "createvehiclesurplus:block/transmission/block_y_1"
+    },
+    "axis=y,roles=2": {
+      "model": "createvehiclesurplus:block/transmission/block_y_2"
+    },
+    "axis=y,roles=3": {
+      "model": "createvehiclesurplus:block/transmission/block_y_3"
+    },
+    "axis=z,roles=0": {
+      "model": "createvehiclesurplus:block/transmission/block_z_0"
+    },
+    "axis=z,roles=1": {
+      "model": "createvehiclesurplus:block/transmission/block_z_1"
+    },
+    "axis=z,roles=2": {
+      "model": "createvehiclesurplus:block/transmission/block_z_2"
+    },
+    "axis=z,roles=3": {
+      "model": "createvehiclesurplus:block/transmission/block_z_3"
     }
   }
 }

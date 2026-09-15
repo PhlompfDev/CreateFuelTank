@@ -2,6 +2,7 @@ package com.createvehiclesurplus.client.ponder;
 
 import com.createvehiclesurplus.content.transmission.Gear;
 import com.createvehiclesurplus.content.transmission.TransmissionBlock;
+import com.createvehiclesurplus.content.transmission.TransmissionBlockEntity;
 import com.simibubi.create.content.redstone.analogLever.AnalogLeverBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import net.createmod.ponder.api.PonderPalette;
@@ -10,6 +11,7 @@ import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.NbtUtils;
 
 /**
  * Ponder storyboard for the Transmission. The Ponder level never ticks the server side, so each
@@ -37,6 +39,10 @@ public class TransmissionScenes {
         scene.world().setKineticSpeed(input, SPEED);
         scene.world().setKineticSpeed(boxSel, SPEED);
         scene.world().setKineticSpeed(output, 0);
+        // Ponder never propagates rotation, so tell the box where its power comes from: the gear
+        // train puts the input pinion at the source end and the output shaft only turns in gear.
+        scene.world().modifyBlockEntityNBT(boxSel, TransmissionBlockEntity.class,
+                nbt -> nbt.put("Source", NbtUtils.writeBlockPos(box.west())));
         scene.world().showSection(input, Direction.EAST);
         scene.idle(10);
         scene.world().showSection(boxSel, Direction.DOWN);

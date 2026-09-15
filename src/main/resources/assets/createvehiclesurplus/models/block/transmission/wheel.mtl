@@ -1,5 +1,0 @@
-# Transmission gear wheel materials
-newmtl wheel
-map_Kd #wheel
-newmtl brass
-map_Kd #brass

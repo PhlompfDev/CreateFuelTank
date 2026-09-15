@@ -1,40 +1,39 @@
 package com.createvehiclesurplus.client;
 
 import com.createvehiclesurplus.content.link.SidedLinkBehaviour;
+import com.createvehiclesurplus.content.transmission.Gear;
 import com.createvehiclesurplus.content.transmission.Role;
 import com.createvehiclesurplus.content.transmission.TransmissionBlock;
 import com.createvehiclesurplus.content.transmission.TransmissionBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
+import com.simibubi.create.AllPartialModels;
+import com.simibubi.create.content.kinetics.base.KineticBlockEntityRenderer;
 import com.simibubi.create.content.kinetics.transmission.SplitShaftBlockEntity;
-import com.simibubi.create.content.kinetics.transmission.SplitShaftRenderer;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxRenderer;
+import dev.engine_room.flywheel.api.visualization.VisualizationManager;
+import dev.engine_room.flywheel.lib.model.baked.PartialModel;
+import net.createmod.catnip.animation.AnimationTickHolder;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.render.CachedBuffers;
+import net.createmod.catnip.render.SuperByteBuffer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import org.joml.Matrix3f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 /**
- * Draws what the static model can't: the frequency items in the sockets, and on every long face
- * its role glyph and a gear wheel that rolls to the current gear. Both are partials modelled on
- * the north face and turned onto each face with that face's up direction, so they read upright
- * whatever the axis and role layout. Then hands over to Create's split-shaft renderer, which draws
- * the two half shafts only when Flywheel is off.
+ * Draws the frequency items in the sockets, and, when Flywheel is not drawing this level (backend
+ * off, Ponder scenes), the same moving parts as {@link TransmissionVisual}: half shafts, layshaft
+ * cluster and sliders, with Create's kinetic rotation transform. Everything goes into one solid
+ * buffer: every texel is opaque, and Ponder's buffer source shares a single builder between render
+ * types, so holding two consumers at once throws "Not building!".
  */
-public class TransmissionRenderer extends SplitShaftRenderer {
-    // The wheel's axis in the partial's frame: along X, 8 px up, 6.16 px behind the block's north
-    // boundary (a 7 px hexagon whose front side sits 0.1 px inside the boundary). Must match
-    // tools/gen_transmission_assets.py.
-    private static final float WHEEL_Y = 8f / 16;
-    private static final float WHEEL_Z = (0.1f + 7f * (float) Math.sqrt(3) / 2) / 16;
+public class TransmissionRenderer extends KineticBlockEntityRenderer<SplitShaftBlockEntity> {
 
     public TransmissionRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
@@ -42,11 +41,12 @@ public class TransmissionRenderer extends SplitShaftRenderer {
 
     @Override
     protected void renderSafe(SplitShaftBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
-        if (be instanceof TransmissionBlockEntity transmission && be.getBlockState().getBlock() instanceof TransmissionBlock) {
-            renderFrequencies(transmission, ms, buffer, light, overlay);
-            renderFaceParts(transmission, partialTicks, ms, buffer, light);
-        }
-        super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
+        if (!(be instanceof TransmissionBlockEntity transmission) || !(be.getBlockState().getBlock() instanceof TransmissionBlock))
+            return;
+        renderFrequencies(transmission, ms, buffer, light, overlay);
+        if (VisualizationManager.supportsVisualization(be.getLevel()))
+            return;
+        renderGearTrain(transmission, partialTicks, ms, buffer, light);
     }
 
     private static void renderFrequencies(TransmissionBlockEntity be, PoseStack ms, MultiBufferSource buffer, int light, int overlay) {
@@ -67,42 +67,47 @@ public class TransmissionRenderer extends SplitShaftRenderer {
         }
     }
 
-    private static void renderFaceParts(TransmissionBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
+    private static void renderGearTrain(TransmissionBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer, int light) {
         BlockState state = be.getBlockState();
-        Direction.Axis axis = state.getValue(TransmissionBlock.AXIS);
-        VertexConsumer consumer = buffer.getBuffer(RenderType.cutoutMipped());
-        float wheelAngle = be.wheelAngle(partialTicks);
-        for (Role role : Role.VALUES) {
-            Direction face = TransmissionBlock.faceOf(state, role);
-            ms.pushPose();
-            ms.translate(0.5, 0.5, 0.5);
-            ms.mulPose(northToFace(face, TransmissionBlock.faceUp(axis, face)));
-            ms.translate(-0.5, -0.5, -0.5);
-            CachedBuffers.partial(TransmissionPartials.GLYPHS.get(role), state).light(light).renderInto(ms, consumer);
+        Axis axis = state.getValue(TransmissionBlock.AXIS);
+        Direction positive = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+        Direction input = TransmissionParts.inputEnd(be);
+        float in = be.getSpeed();
+        float out = in * be.gear().ratio();
+        float time = AnimationTickHolder.getRenderTime(be.getLevel());
+        float base = getRotationOffsetForPosition(be, be.getBlockPos(), axis);
+        VertexConsumer solid = buffer.getBuffer(RenderType.solid());
 
-            ms.translate(0, WHEEL_Y, WHEEL_Z);
-            ms.mulPose(Axis.XP.rotationDegrees(wheelAngle));
-            ms.translate(0, -WHEEL_Y, -WHEEL_Z);
-            CachedBuffers.partial(TransmissionPartials.WHEEL, state).light(light).renderInto(ms, consumer);
-            ms.popPose();
+        for (Direction end : Iterate.directionsInAxis(axis)) {
+            float angle = radians(time * (end == input ? in : out) * 3f / 10 + base);
+            kineticRotationTransform(CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, state, end), be, axis, angle, light)
+                    .renderInto(ms, solid);
+        }
+        float layAngle = radians(time * -in * 3f / 10 + base);
+        draw(TransmissionParts.LAY_ROD, state, positive, TransmissionParts.onLayshaft(axis, 8), be, axis, layAngle, light, ms, solid);
+        int live = TransmissionParts.slotOf(be.gear());
+        for (int slot = 0; slot < TransmissionParts.SLOTS; slot++) {
+            Gear gear = TransmissionParts.gearOfSlot(slot);
+            PartialModel gearModel = gear == Gear.REVERSE ? TransmissionParts.LAY_REVERSE : TransmissionParts.LAY[TransmissionParts.sizeOf(gear)];
+            float slotA = TransmissionParts.SLOT_A[gear.index()];
+            draw(gearModel, state, positive, TransmissionParts.onLayshaft(axis, slotA), be, axis,
+                    radians(time * -in * 3f / 10 + base + TransmissionParts.MESH_OFFSET), light, ms, solid);
+            float engagement = be.engagement(slot, partialTicks);
+            float speed = slot == live ? out : 0;
+            draw(TransmissionParts.SLIDER[TransmissionParts.sizeOf(gear)], state, positive,
+                    TransmissionParts.onShaft(axis, TransmissionParts.sliderA(gear, engagement)), be, axis,
+                    radians(time * speed * 3f / 10 + base), light, ms, solid);
         }
     }
 
-    /** Rotation taking the partials' frame (north face, up = +Y) onto {@code face} with up = {@code up}. */
-    static Quaternionf northToFace(Direction face, Direction up) {
-        Vector3f n = normal(face);
-        Vector3f u = normal(up);
-        Vector3f r = new Vector3f(u).cross(n);
-        Vector3f n0 = normal(Direction.NORTH);
-        Vector3f u0 = normal(Direction.UP);
-        Vector3f r0 = new Vector3f(u0).cross(n0);
-        // Columns are the frame's axes; for orthonormal frames the rotation is target * source^T.
-        Matrix3f target = new Matrix3f(u, n, r);
-        Matrix3f source = new Matrix3f(u0, n0, r0);
-        return new Quaternionf().setFromNormalized(target.mul(source.transpose()));
+    private static void draw(PartialModel partial, BlockState state, Direction facing, Vector3f offset, TransmissionBlockEntity be,
+                             Axis axis, float angle, int light, PoseStack ms, VertexConsumer consumer) {
+        SuperByteBuffer buffer = CachedBuffers.partialFacing(partial, state, facing);
+        buffer.translate(offset.x, offset.y, offset.z);
+        kineticRotationTransform(buffer, be, axis, angle, light).renderInto(ms, consumer);
     }
 
-    private static Vector3f normal(Direction direction) {
-        return new Vector3f(direction.getStepX(), direction.getStepY(), direction.getStepZ());
+    private static float radians(float degrees) {
+        return (degrees % 360) / 180f * (float) Math.PI;
     }
 }

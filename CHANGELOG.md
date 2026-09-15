@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.0 — Transmission remodel
+
+**Changed**
+- New Transmission model: iron case with brass flanges, and a gear cluster in a channel along one edge.
+- The gears show the gear: a sliding gear moves to the selected one and turns with the output, hides in Neutral, and the brass gear at the input end is Reverse.
+- The role marks are cast brass relief.
+- Shaft ends stand a pixel proud of the bearing plates.
+
+**Removed**
+- The gear wheels on each face.
+
 ## 0.6.0 — Create: Vehicle Surplus
 
 Create: Fuel Tank is now **Create: Vehicle Surplus**, a home for vehicle parts in general.

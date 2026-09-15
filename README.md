@@ -14,7 +14,8 @@ Create Aeronautics / Simulated builds, and they work anywhere else too.
 - **Differential**: a Gearbox whose outputs all turn the input's way, for driven axles.
 - **Transmission**: an inline gearbox with Reverse, Neutral and gears 1/4, 1/2, 3/4 and 1:1.
   Each long face has built-in Redstone Link slots: Up and Down shift a gear, Analog picks the
-  gear by signal strength, Neutral locks the output. A wheel on each face shows the gear.
+  gear by signal strength, Neutral locks the output. The gear cluster in the channel along its
+  edge shows the gear: the sliding gear meshes the selected one, and hides away in Neutral.
 
 Every block has a Ponder scene.
 

@@ -13,10 +13,18 @@ import net.minecraft.world.phys.Vec3;
 /**
  * One of a role's two frequency slots. They are stacked like a wall-mounted Redstone Link's: the
  * first 2.5 px above the face centre, the second 2.5 px below it, where "above" is the face's
- * {@link TransmissionBlock#faceUp up direction}; a quarter pixel outside the block where the brass
- * sockets end.
+ * {@link TransmissionBlock#faceUp up direction}; set into the brass pads so that the rendered sprite
+ * lies on their face (see {@link #ITEM_SINK}).
  */
 public class TransmissionSlot extends ValueBoxTransform.Dual {
+    /**
+     * Create's value-box renderer nudges a flat item 0.25 units out of its plane, which at this slot's
+     * scale (0.4975 x 0.75 x the item's 0.5156) is 0.77 px, plus 0.1 px of half thickness. Its own link
+     * hides that inside a rimmed socket; on a proud pad it reads as a float, so the plane sits most of
+     * that inside the pad and the sprite's front lands 0.2 px above the brass, flat like paper. 0.82
+     * put the front exactly on the pad's plane, where thin items lost the depth test and vanished.
+     */
+    private static final double ITEM_SINK = 0.35;   // tuned in game: 0.82 hid thin items, 0.6 sat them slightly low
     private final Role role;
 
     public TransmissionSlot(boolean first, Role role) {
@@ -32,7 +40,7 @@ public class TransmissionSlot extends ValueBoxTransform.Dual {
         Direction up = TransmissionBlock.faceUp(state.getValue(TransmissionBlock.AXIS), face);
         double upOffset = (isFirst() ? 2.5 : -2.5) / 16;
         return new Vec3(0.5, 0.5, 0.5)
-                .add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.5 + 0.25 / 16))
+                .add(Vec3.atLowerCornerOf(face.getNormal()).scale(0.5 - ITEM_SINK / 16))
                 .add(Vec3.atLowerCornerOf(up.getNormal()).scale(upOffset));
     }
 

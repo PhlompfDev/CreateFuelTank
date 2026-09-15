@@ -44,9 +44,11 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
     private final ShiftRules rules = new ShiftRules();
     private final int[] wired = new int[Role.VALUES.length];
     private final int[] linked = new int[Role.VALUES.length];
-    // Client-side only: the gear wheels' angle in degrees (60 per gear index, one side of the hexagon), eased on every shift.
-    private final LerpedFloat wheelAngle = LerpedFloat.linear();
-    private boolean wheelStarted;
+    // Client-side only: how far each corner cog has slid in to mesh its pinion (0 parked, 1 engaged), eased on
+    // every shift. Slots are the four forward gears then reverse; see TransmissionParts.slotOf.
+    private final LerpedFloat[] engagement = new LerpedFloat[ENGAGEMENT_SLOTS];
+    private boolean engagementStarted;
+    public static final int ENGAGEMENT_SLOTS = 5;
 
     public TransmissionBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -91,24 +93,40 @@ public class TransmissionBlockEntity extends SplitShaftBlockEntity {
         if (level == null)
             return;
         if (level.isClientSide) {
-            tickWheels();
+            tickEngagement();
             return;
         }
         apply(rules.tick(gear(), level.getGameTime()), false);
     }
 
-    private void tickWheels() {
-        float target = gear().index() * 60f;
-        if (!wheelStarted) {
-            wheelAngle.startWithValue(target);
-            wheelStarted = true;
-        }
-        wheelAngle.chase(target, 0.35, LerpedFloat.Chaser.EXP);
-        wheelAngle.tickChaser();
+    /** Slot a gear engages: forward gears 0..3 in order, reverse last, neutral none. */
+    public static int engagementSlot(Gear gear) {
+        return switch (gear) {
+            case NEUTRAL -> -1;
+            case REVERSE -> ENGAGEMENT_SLOTS - 1;
+            default -> gear.index() - 2;
+        };
     }
 
-    public float wheelAngle(float partialTicks) {
-        return wheelAngle.getValue(partialTicks);
+    private void tickEngagement() {
+        int live = engagementSlot(gear());
+        for (int slot = 0; slot < engagement.length; slot++) {
+            float target = slot == live ? 1 : 0;
+            if (!engagementStarted) {
+                engagement[slot] = LerpedFloat.linear().startWithValue(target);
+                continue;
+            }
+            engagement[slot].chase(target, 0.35, LerpedFloat.Chaser.EXP);
+            engagement[slot].tickChaser();
+        }
+        engagementStarted = true;
+    }
+
+    /** 0 while a corner cog is parked, 1 when it meshes its pinion; between while it slides. */
+    public float engagement(int slot, float partialTicks) {
+        if (!engagementStarted)
+            return engagementSlot(gear()) == slot ? 1 : 0;
+        return engagement[slot].getValue(partialTicks);
     }
 
     /** Re-reads the redstone signal on each role's face. Called on neighbour changes and role rotation. */

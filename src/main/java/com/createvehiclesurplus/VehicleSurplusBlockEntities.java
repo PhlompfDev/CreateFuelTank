@@ -4,12 +4,12 @@ import com.createvehiclesurplus.client.DifferentialRenderer;
 import com.createvehiclesurplus.client.DifferentialVisual;
 import com.createvehiclesurplus.client.LongFuelTankRenderer;
 import com.createvehiclesurplus.client.TransmissionRenderer;
+import com.createvehiclesurplus.client.TransmissionVisual;
 import com.createvehiclesurplus.content.differential.DifferentialBlockEntity;
 import com.createvehiclesurplus.content.fuel_tank.FuelTankBlockEntity;
 import com.createvehiclesurplus.content.long_fuel_tank.LongFuelTankBlockEntity;
 import com.createvehiclesurplus.content.transmission.TransmissionBlockEntity;
 import com.simibubi.create.content.fluids.tank.FluidTankRenderer;
-import com.simibubi.create.content.kinetics.transmission.SplitShaftVisual;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 
@@ -40,9 +40,9 @@ public class VehicleSurplusBlockEntities {
 
     public static final BlockEntityEntry<TransmissionBlockEntity> TRANSMISSION = REGISTRATE
             .blockEntity("transmission", TransmissionBlockEntity::new)
-            // Create's split-shaft visual draws each half at its own speed (the output at the geared speed).
-            // true = the block-entity renderer keeps running under Flywheel (it draws items, glyphs and gear wheels there).
-            .visual(() -> SplitShaftVisual::new, true)
+            // The visual draws the half shafts, pinions and corner cogs at their own speeds.
+            // true = the block-entity renderer keeps running under Flywheel (it draws the frequency items there).
+            .visual(() -> TransmissionVisual::new, true)
             .validBlocks(VehicleSurplusBlocks.TRANSMISSION)
             .renderer(() -> TransmissionRenderer::new)
             .register();

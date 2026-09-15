@@ -14,7 +14,7 @@ public class VehicleSurplusClient {
     public static void init() {
         // Same hook Create uses (CreateClient): plugins are queried when the Ponder index is built.
         PonderIndex.addPlugin(new VehicleSurplusPonderPlugin());
-        TransmissionPartials.init();
+        TransmissionParts.init();
         NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post event) -> SidedLinkOutliner.tick());
     }
 }
